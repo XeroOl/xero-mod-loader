@@ -6,7 +6,7 @@ end
 -- adds an ease entry to the mod with the power of closures
 -- ex: help_ease(0,10,help_linear,{{0,100,dizzy}})
 ---------------------------------------------BASIC-EASES---------------------------
-function help.linear(x)return x	end
+function help.linear(x)return x end
 function help.cubic(x)return 3*x*x-2*x*x*x end
 function help.accelerate(x)return x*x end
 function help.decelerate(x)return -x*x+2*x end
@@ -77,6 +77,7 @@ function help.spline_tool(start,length,mysplinefunc,myspeedmod)
 				if note[1] >= curbeat then
 					local offset = (note[1] - curbeat) * 100 * myspeedmod
 					
+					-- pass in a table {X=(the x amount),Y=(the y amount),Stealth=... etc}
 					local resulttable = mysplinefunc(offset,note,x+start,pn)-- this is the interface
 					
 					for splinetype,modpercent in pairs(resulttable) do
