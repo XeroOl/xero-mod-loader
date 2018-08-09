@@ -86,7 +86,7 @@
 	local lastseenbeat = -1
 	
 	--the update command
-	xero.update_command = function() --GLOBAL (but I don't want people to call it from the globe)
+	xero.update_command = function(defaultmods) --GLOBAL
 		
 		local beat = GAMESTATE:GetSongBeat();
 		
@@ -95,7 +95,10 @@
 			lastseenbeat = beat
 			
 			--mod strings
-			local mods = 'mod,clearall'
+			local mods = 'mod'
+			if defaultmods then
+				mods=mods..','..defaultmods
+			end
 			local modsplayer = {'mod','mod'}
 			
 			--loop through cache to find any items that are relevant and need to be added to the mod table
@@ -153,8 +156,10 @@
 				end
 			end
 			
-			--apply mods
-			GAMESTATE:ApplyGameCommand(mods)
+			--apply mods if any
+			if mods~='mod'then
+				GAMESTATE:ApplyGameCommand(mods)
+			end
 			--apply mods to p1 if any
 			if modsplayer[1]~='mod' then
 				GAMESTATE:ApplyGameCommand(modsplayer[1],1)
@@ -170,7 +175,7 @@
 end"
 	UpdateCommand="%function(self)
 		--call main update command
-		xero.update_command()
+		xero.update_command('clearall')
 		
 		--sleep a lil bit before updating again
 		self:sleep(0.006)
