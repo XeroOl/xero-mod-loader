@@ -53,15 +53,17 @@ function help.for_each_note(start,length,func)
 	end
 end
 
-function help.spline_tool(start,length,mysplinefunc,myspeedmod)
+function help.spline_tool(start,length,mysplinefunc,myspeedmod,offsetwindow,maxsplinecount)
 	myspeedmod = myspeedmod or 1 -- default is 1x
+	maxsplinecount = maxsplinecount or 38 -- don't set to above 38
+	offsetwindow = offsetwindow or 20
 	for i,v in pairs(xero.plr) do
 		local pn = i
 		local Player = v
 		Player:PushNoteData('xero_prefix_notedata',start,start+length)
 		local mytable = xero_prefix_notedata
 		xero_prefix_notedata = nil
-		Player:NoClearSplines(true)
+		xero.add_mod(start,function()Player:NoClearSplines(true)end)
 		xero.add_mod(start,length,function(x)
 			local which = {}
 			local curbeat = start+x
@@ -70,7 +72,7 @@ function help.spline_tool(start,length,mysplinefunc,myspeedmod)
 				local receptortable = mysplinefunc(offset,{curbeat,i,-1},x+start,pn)
 				for splinetype,modpercent in pairs(receptortable) do
 					which[splinetype..i]=0
-					Player['Set'..splinetype..'Spline'](Player,which[splinetype..i],i,modpercent,0.001--[[or 0.0001]],-1)
+					Player['Set'..splinetype..'Spline'](Player,which[splinetype..i],i,modpercent,0.001,-1)
 				end
 			end
 			for num,note in mytable do
@@ -81,9 +83,9 @@ function help.spline_tool(start,length,mysplinefunc,myspeedmod)
 					local resulttable = mysplinefunc(offset,note,x+start,pn)-- this is the interface
 					
 					for splinetype,modpercent in pairs(resulttable) do
-						if(which[splinetype..note[2]]<30)then 
+						if(which[splinetype..note[2]]<maxsplinecount)then 
 							which[splinetype..note[2]]=which[splinetype..note[2]]+1
-							Player['Set'..splinetype..'Spline'](Player,which[splinetype..note[2]],note[2],modpercent,(offset-10>0.001 and offset-10 or 0.001001),-1)
+							Player['Set'..splinetype..'Spline'](Player,which[splinetype..note[2]],note[2],modpercent,math.max(offset-offsetwindow,0.002),-1)
 							which[splinetype..note[2]]=which[splinetype..note[2]]+1
 							Player['Set'..splinetype..'Spline'](Player,which[splinetype..note[2]],note[2],modpercent,offset,-1)
 						end
