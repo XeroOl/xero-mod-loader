@@ -1,4 +1,4 @@
-# x-mod
+# X-MOD
 This is X-MOD, a mod table reader for OpenITG and NotITG.
 
 To use as a standalone mod reader:
