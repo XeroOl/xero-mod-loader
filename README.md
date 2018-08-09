@@ -14,4 +14,4 @@ To run with another mod reader:
 5) In X-MOD's `default.xml`, remove this line: `queuecommand('Update')`.
 6) At the end of your mod reader's Update Command, add the line `xero.update_command()`.
 
-Then, you can add mods via `xero.add_mod()` in `mods.lua` and put actor definitions in `actors.xml`.
+After you've set up X-MOD, you can add mods via `xero.add_mod()` in `mods.lua` and put actor definitions in `actors.xml`.
