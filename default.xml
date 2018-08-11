@@ -10,7 +10,7 @@
 	
 	xero = {} -- global
 	
-	-- the mod table:
+	-- the mod table upvalue
 	local mod_table = {};
 	
 	-- the interface for the mod table:
@@ -86,19 +86,16 @@
 	local lastseenbeat = -1
 	
 	--the update command
-	xero.update_command = function(defaultmods) --GLOBAL
+	xero.update_command = function(hybridmode) --GLOBAL
 		
 		local beat = GAMESTATE:GetSongBeat();
 		
 		--ensure that update hasn't been run this frame yet
-		if beat ~= lastseenbeat then
+		if beat ~= lastseenbeat or hybridmode then
 			lastseenbeat = beat
 			
 			--mod strings
-			local mods = 'mod'
-			if defaultmods then
-				mods=mods..','..defaultmods
-			end
+			local mods = hybridmode and 'mod' or 'mod,clearall'
 			local modsplayer = {'mod','mod'}
 			
 			--loop through cache to find any items that are relevant and need to be added to the mod table
@@ -175,7 +172,7 @@
 end"
 	UpdateCommand="%function(self)
 		--call main update command
-		xero.update_command('clearall')
+		xero.update_command()
 		
 		--sleep a lil bit before updating again
 		self:sleep(0.006)
