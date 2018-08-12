@@ -5,6 +5,53 @@ function help.interpolate(value0,value1,amount)
 end
 -- adds an ease entry to the mod with the power of closures
 -- ex: help_ease(0,10,help_linear,{{0,100,dizzy}})
+-- help.ease(start,length,help.cubic,0,100,'dizzy',1)
+-- help.ease(start,length,help.cubic,{{0,100,'dizzy'},{0,59,'invert'}},1)
+local function easehelper(startpercent,endpercent,progress,mod)
+	return'*9999 '..help.interpolate(startpercent,endpercent,progress)..' '..mod
+end
+function help.ease(...)
+	local startbeat = arg[1]
+	local length = arg[2]
+	local count = 3
+	-- holdlength is optional
+	local holdlength
+	if type(arg[3])=='number' then
+		holdlength = arg[3]
+		count = count + 1
+	end
+	local myfunction = arg[count]
+	if type(arg[count+1])=='number' then
+		xero.add_mod(startbeat,length,function(x)
+			return easehelper(arg[count+1],arg[count+2],myfunction(x/length),arg[count+3])
+		end,arg[count+4])
+		if holdlength then
+			local val = easehelper(arg[count+1],arg[count+2],myfunction(1),arg[count+3])
+			xero.add_mod(startbeat+length,holdlength,val,arg[count+4])
+		end
+	else
+		local mytable = arg[count+1]
+		xero.add_mod(startbeat,length,function(x)
+			local table2 = {}
+			local count2 = 1
+			for i,v in pairs(mytable) do 
+				table2[count2]=easehelper(v[1],v[2],myfunction(x/length),v[3])
+				count2 = count2 + 1
+			end
+			return table.concat(table2,',')
+		end,arg[count+2])
+		if holdlength then
+			local table2 = {}
+			local count2 = 1
+			for i,v in pairs(mytable) do 
+				table2[count2]=easehelper(v[1],v[2],myfunction(1),v[3])
+				count2 = count2 + 1
+			end
+			local val = table.concat(table2,',')
+			xero.add_mod(startbeat+length,holdlength,val,arg[count+2])
+		end
+	end
+end
 ---------------------------------------------BASIC-EASES---------------------------
 function help.linear(x)return x end
 function help.cubic(x)return 3*x*x-2*x*x*x end
@@ -55,7 +102,7 @@ end
 
 function help.spline_tool(start,length,mysplinefunc,myspeedmod,offsetwindow,maxsplinecount)
 	myspeedmod = myspeedmod or 1 -- default is 1x
-	maxsplinecount = maxsplinecount or 38 -- don't set to above 38
+	maxsplinecount = maxsplinecount or 30 -- don't set to above 38
 	offsetwindow = offsetwindow or 20
 	for i,v in pairs(xero.plr) do
 		local pn = i
