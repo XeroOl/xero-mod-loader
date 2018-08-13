@@ -3,10 +3,6 @@
 <Layer Type="Quad"InitCommand="hidden,1;sleep,9999"/>
 <Layer File="actors.xml"/>
 <Layer Type="Quad"InitCommand="%function(self)self:hidden(1);xero={update_command=function(x)
-	-- fix to reduce lag in editor
-	self:effectclock('music')
-	local curtime = self:GetSecsIntoEffect()
-	self:sleep(math.max(0,curtime))
 	
 	-- the mod table upvalue
 	local mod_table = {};

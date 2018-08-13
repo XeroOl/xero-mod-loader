@@ -1,5 +1,12 @@
 <ActorFrame
-OnCommand="queuecommand,Update"
+OnCommand="function(self)
+	-- fix to reduce lag in editor
+	self:effectclock('music')
+	local curtime = self:GetSecsIntoEffect()
+	self:sleep(math.max(0,curtime))
+	
+	self:queuecommand('Update')
+	end"
 UpdateCommand="%function(self)
 	xero.update_command()
 	self:sleep(0.006)
