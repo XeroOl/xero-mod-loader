@@ -1,0 +1,193 @@
+<!-- don't touch this file -->
+<ActorFrame><children>
+<Layer Type="Quad"InitCommand="hidden,1;sleep,9999"/>
+<Layer File="actors.xml"/>
+<Layer Type="Quad"InitCommand="%function(self)self:hidden(1);xero={update_command=function(x)
+	-- fix to reduce lag in editor
+	self:effectclock('music')
+	local curtime = self:GetSecsIntoEffect()
+	self:sleep(math.max(0,curtime))
+	
+	-- the mod table upvalue
+	local mod_table = {};
+	
+	-- the interface for the mod table:
+	-- types of mod table entries
+	local valid_table_entries = {
+		['number, function, nil, nil']=true,
+		['number, number, string, nil']=true,
+		['number, number, string, number']=true,
+		['number, number, function, nil']=true,
+		['number, number, function, number']=true,
+	}
+	-- index for the mod table
+	local num_mods = 1
+	
+	-- adding mods
+	function xero.add_mod(v1,v2,v3,v4) --GLOBAL
+	
+		-- check for valid type
+		local prototype = type(v1)..', '..type(v2)..', '..type(v3)..', '..type(v4)
+		if valid_table_entries[prototype] then
+			
+			-- insert into mod table
+			mod_table[num_mods] = {v1,v2,v3,v4}
+			num_mods = num_mods + 1
+		else
+			SCREENMAN:SystemMessage('invalid mod {'..prototype..'} at index '..num_mods)
+		end
+	end
+	
+	-- top screen local
+	local top = SCREENMAN:GetTopScreen()
+	
+	-- the player table:
+	xero.plr = {[1]=top:GetChild('PlayerP1'),[2]=top:GetChild('PlayerP2')} --GLOBAL
+	
+	-- hide various elements of the screen that aren't needed in mod files
+	top:GetChild('Overlay'):hidden(1)
+	top:GetChild('Underlay'):hidden(1)
+	for i,v in pairs(xero.plr) do
+			top:GetChild('ScoreP'..i):hidden(1)
+			top:GetChild('LifeP'..i):hidden(1)
+	end
+	
+	-- call code to initialize the mods
+	function xero.loadfile(path) --GLOBAL
+		-- load the song directory
+		local songdir = GAMESTATE:GetCurrentSong():GetSongDir()
+		-- attempt to load lua file
+		local mylua,err = loadfile('.' .. songdir .. path)
+		if err then
+			-- try additional song folders
+			local additionalsongfolders = PREFSMAN:GetPreference('AdditionalSongFolders')
+			-- cut off 'Songs/' from the path
+			local _,index = string.find(songdir,'Songs/')
+			local songloc = string.sub(songdir,index)
+			
+			-- for every songfolder in the additionalsongfolders
+			for songfolder in string.gfind(additionalsongfolders,'[^,]+') do
+				local err
+				
+				-- attempt to load file
+				mylua,err = loadfile(songfolder .. songloc .. path)
+				if not err then break end
+			end
+		end
+		-- report error if nothing was found
+		if not mylua then
+			SCREENMAN:SystemMessage(err)
+			return
+		else
+			local success,result = pcall(mylua)
+			if success then
+				return result
+			else
+				SCREENMAN:SystemMessage(result)
+				return
+			end
+		end
+	end
+	xero.loadfile('lua/xero/mods.lua') 
+
+	--cache all pre-initialized mods into an upvalue
+	local cache = mod_table
+	mod_table={}
+	
+	--sort the cache by start beat, so it's easy to identify which entries are relevant
+	table.sort(cache,function(a,b)return a[1]>b[1] end)
+	
+	--upvalue of the length of the cache
+	local cachelen = num_mods-1
+	
+	--upvalue of the last result of GAMESTATE:GetSongBeat()
+	local lastseenbeat = -1
+	
+	--the update command
+	xero.update_command = function(hybridmode) --GLOBAL
+		
+		local beat = GAMESTATE:GetSongBeat();
+		
+		--ensure that update hasn't been run this frame yet
+		if beat ~= lastseenbeat or hybridmode then
+			lastseenbeat = beat
+			
+			--mod strings
+			local mods = hybridmode and 'mod' or 'mod,clearall'
+			local modsplayer = {'mod','mod'}
+			
+			--loop through cache to find any items that are relevant and need to be added to the mod table
+			if cachelen ~= 0 then
+				for i = cachelen,1,-1 do
+					if cache[i] then
+						if beat>=cache[i][1] then
+							mod_table[i]=cache[i]
+							cache[i]=nil
+							cachelen=cachelen-1
+						else
+							--cache[i] isn't happening yet, and since cache is sorted, cache[i+n] is also not happening and doesn't need to be checked
+							break
+						end
+					else
+						--if the last element is nil, it isn't really the last element, and the length needs to be updated
+						cachelen=cachelen-1
+					end
+				end
+			end
+			--loop through the mod table to add to the mod strings
+			for i,v in pairs(mod_table) do
+				if beat >= v[1] then
+					if type(v[2])=='number' then --entry is of type {beat, len, <?>}
+						
+						if beat<v[1]+v[2] then
+							
+							-- value can be a string or a function
+							local value = v[3]
+							
+							-- deal with function case: turn it into a string case or a nil
+							if type(value)=='function' then
+								value = value(beat-v[1])
+							end
+							
+							-- deal with string case:
+							if type(value)=='string' then
+								if v[4] then
+									modsplayer[ v[4] ]=modsplayer[ v[4] ]..','..value
+								else
+									mods=mods..','..value
+								end
+							end
+						else
+							--delete expired effect from mod table
+							mod_table[i]=nil
+						end
+					else --assume entry is of type {beat, function}
+						
+						v[2](0)
+						
+						--clean up mod_table to keep it as empty as possible
+						mod_table[i]=nil
+					end
+				end
+			end
+			
+			--apply mods if any
+			if mods~='mod'then
+				GAMESTATE:ApplyGameCommand(mods)
+			end
+			--apply mods to p1 if any
+			if modsplayer[1]~='mod' then
+				GAMESTATE:ApplyGameCommand(modsplayer[1],1)
+			end
+			--apply mods to p2 if any
+			if modsplayer[2]~='mod' then
+				GAMESTATE:ApplyGameCommand(modsplayer[2],2)
+			end 
+		end
+	end--end of update command definition
+	return xero.update_command()
+end}
+end"
+OffCommand="%function()xero=nil end"
+/>
+</children></ActorFrame>
