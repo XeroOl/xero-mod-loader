@@ -1,5 +1,5 @@
 <ActorFrame
-OnCommand="function(self)
+OnCommand="%function(self)
 	-- fix to reduce lag in editor
 	self:effectclock('music')
 	local curtime = self:GetSecsIntoEffect()
