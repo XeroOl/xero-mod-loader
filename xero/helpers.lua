@@ -23,10 +23,10 @@ function help.ease(...)
 	local myfunction = arg[count]
 	if type(arg[count+1])=='number' then
 		xero.add_mod(startbeat,length,function(x)
-			return easehelper(arg[count+1],arg[count+2],myfunction(x/length),arg[count+3])
+			return easehelper(arg[count+1],arg[count+2],myfunction(x/length,0,1,1),arg[count+3])
 		end,arg[count+4])
 		if holdlength then
-			local val = easehelper(arg[count+1],arg[count+2],myfunction(1),arg[count+3])
+			local val = easehelper(arg[count+1],arg[count+2],myfunction(1,0,1,1),arg[count+3])
 			xero.add_mod(startbeat+length,holdlength,val,arg[count+4])
 		end
 	else
@@ -35,7 +35,7 @@ function help.ease(...)
 			local table2 = {}
 			local count2 = 1
 			for i,v in pairs(mytable) do 
-				table2[count2]=easehelper(v[1],v[2],myfunction(x/length),v[3])
+				table2[count2]=easehelper(v[1],v[2],myfunction(x/length,0,1,1),v[3])
 				count2 = count2 + 1
 			end
 			return table.concat(table2,',')
@@ -44,7 +44,7 @@ function help.ease(...)
 			local table2 = {}
 			local count2 = 1
 			for i,v in pairs(mytable) do 
-				table2[count2]=easehelper(v[1],v[2],myfunction(1),v[3])
+				table2[count2]=easehelper(v[1],v[2],myfunction(1,0,1,1),v[3])
 				count2 = count2 + 1
 			end
 			local val = table.concat(table2,',')
