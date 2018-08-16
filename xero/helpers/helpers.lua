@@ -1,8 +1,6 @@
 local help = {}
 ----------------------------------------------BASIC-HELPERS------------
-function help.interpolate(value0,value1,amount)
-	return value0+(value1-value0)*amount
-end
+
 -------------------HELPFUL-PRE_BUILTS--------------------------
 function help.reverse(a,b,c,d)return'*9999 '..a..' reverse,*9999 '..(-a+b-c+d)*0.5 ..' alternate,*9999 '..(-a+b+c-d)*0.5 ..' cross,*9999 '..(-a-b+c+d)*0.5 ..' split'end
 -------------------HELFUL-BOIS---------------------------------
