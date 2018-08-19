@@ -1,3 +1,8 @@
+--[[
+This file is part of XeroOl's Mod Loader, which is covered by The MIT License (MIT).
+You can read about the license in license.txt
+]]
+
 local spline = {}
 
 function spline.spline_tool(start,length,mysplinefunc,myspeedmod,offsetwindow,maxsplinecount)

@@ -1,5 +1,9 @@
+--[[
+This file is part of XeroOl's Mod Loader, which is covered by The MIT License (MIT).
+You can read about the license in license.txt
+]]
+
 local help = {}
-----------------------------------------------BASIC-HELPERS------------
 
 -------------------HELPFUL-PRE_BUILTS--------------------------
 function help.reverse(a,b,c,d)return'*9999 '..a..' reverse,*9999 '..(-a+b-c+d)*0.5 ..' alternate,*9999 '..(-a+b+c-d)*0.5 ..' cross,*9999 '..(-a-b+c+d)*0.5 ..' split'end

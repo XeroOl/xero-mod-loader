@@ -1,11 +1,19 @@
+--[[
+This file is part of XeroOl's Mod Loader, which is covered by The MIT License (MIT).
+You can read about the license in license.txt
+]]
+
 local spellcards = {}
+
 if not FUCK_EXE or tonumber(GAMESTATE:GetVersionDate()) < 20170714 then
+
 	spellcards.is_supported = false
-	function spellcards.add_spellcard()end
-	function spellcards.flush()end
+	function spellcards.add_spellcard() --[[don't do anything if in OpenITG]] end
+
 else
+
 	spellcards.is_supported = true
-	function spellcards.flush()
+	local function flush_spellcards()
 		local s = GAMESTATE:GetCurrentSong()
 		s:SetNumSpellCards(spellcards.n)
 		for i=0,spellcards.n-1 do
@@ -27,7 +35,7 @@ else
 	function spellcards.add_spellcard(start_beat,length,name,difficulty,color)
 		if not spellcards.n then
 			spellcards.n=0
-			xero.add_mod(0,spellcards.flush)
+			xero.add_mod(0,flush_spellcards)
 		end
 		spellcards[spellcards.n]={start_beat,length,name,difficulty,color}
 		spellcards.n=spellcards.n+1

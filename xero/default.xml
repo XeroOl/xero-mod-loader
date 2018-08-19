@@ -1,8 +1,10 @@
-<!-- don't touch this file -->
+<!--
+This file is part of XeroOl's Mod Loader, which is covered by The MIT License (MIT).
+You can read about the license in license.txt
+-->
 <ActorFrame><children>
 <Layer Type="Quad"InitCommand="hidden,1;sleep,9999"/>
-<Layer File="actors.xml"/>
-<Layer Type="Quad"InitCommand="%function(self)self:hidden(1);xero={update_command=function(x)
+<Layer Type="Quad"InitCommand="%function(self)self:hidden(1);xero={actors={},update_command=function(x)
 	
 	-- the mod table upvalue
 	local mod_table = {};
@@ -186,4 +188,5 @@ end}
 end"
 OffCommand="%function()xero=nil end"
 />
+<Layer File="actors.xml"/>
 </children></ActorFrame>

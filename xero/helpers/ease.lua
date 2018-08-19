@@ -1,8 +1,16 @@
+--[[
+This file is part of XeroOl's Mod Loader, which is covered by The MIT License (MIT).
+You can read about the license in license.txt
+]]
+
 local ease = {}
+
 function ease.interpolate(value0,value1,amount)
 	return value0+(value1-value0)*amount
 end
+
 local function tomodstring(startpercent,endpercent,progress,mod) return'*9999 '..ease.interpolate(startpercent,endpercent,progress)..' '..mod end
+
 function ease.ease(...)
 	local startbeat = arg[1]
 	local length = arg[2]

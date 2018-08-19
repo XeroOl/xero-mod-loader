@@ -1,1 +1,3 @@
-<ActorFrame InitCommand="%function(x)x:hidden(1)end"><children></children></ActorFrame>
+<ActorFrame><children>
+
+</children></ActorFrame>
